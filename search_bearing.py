@@ -1,38 +1,73 @@
-from ast import Break
 from docx import Document
 import re
 
-def isDate (text):
-    dateRegex = re.compile(r'\s\d\d\.\d\d\.\d\d\d\d')
-    mo = dateRegex.search(text)
-    print('Объект Match', mo)
+
+def searcValue (text, regex):
+    mo = regex.search(text)
 
     if mo:
-        print('Date is', mo.group())
         return mo.group().strip()
-    print("Date isn't found")
-    return None
-    
 
+
+def isDate (text):
+    '''Поиск даты в документе'''
+    dateRegex = re.compile(r'\s\d\d\.\d\d\.\d{4}')
+    return searcValue(text, dateRegex)
+    
+def isExecutor (text):
+    '''Поиск Исполнителя в документе'''
+    dateRegex = re.compile(r'.+сполнитель')
+    return searcValue(text, dateRegex)
+
+def isCustomer (text):
+    '''Поиск Заказчика в документе'''
+    dateRegex = re.compile(r'.+аказчик')
+    return searcValue(text, dateRegex)
+
+def isRecipient (text):
+    '''Поиск Получателя в документе'''
+    dateRegex = re.compile(r'.+олучатель')
+    return searcValue(text, dateRegex)
 # открываем существующий документ 
-doc = Document('/home/denis/Документы/python_project/bearing_search/akt.docx')
+doc = Document('/home/denis/Документы/python_project/search-bearing/akt.docx')
 
 act = None # акт
 act_date = None # дата
 executor = None # исполнитель
-brand_size = None # бренд типоразмер 
 customer = None # заказчик
 recipient = None # получатель
+brand_size = None # бренд типоразмер 
+
 bearing_number = None # номер подшипника
 date_manufacture = None # дата изготовления
 reason_transfer = None # причина передачи
 
-# весь текст документа по абзацам
+print()
+# Поиск в шапке документа
 for paragraph in doc.paragraphs:
-     act_date = isDate(paragraph.text)
-     print(act_date)
-     if act_date:        
-        break
+
+    # Поиск даты: если дата None - Искать
+    if not act_date:
+        act_date = isDate(paragraph.text)
+
+    # поиск исполнителя
+    if not executor:
+        executor = isExecutor(paragraph.text)
+    
+    # поиск Зпкпзчика
+    if not customer:
+        customer = isCustomer(paragraph.text)
+
+    # поиск получателя
+    if not recipient:
+        recipient = isRecipient(paragraph.text)
+
+
+print(act_date)
+print(executor)
+print(customer)
+print(recipient)
+print(brand_size)
 
 # table = doc.tables[1]
 
